@@ -14,9 +14,9 @@ import java.util.List;
 @RequestMapping("/items")
 public class ItemController {
     private static final String OWNER = "X-Sharer-User-Id";
-    private ItemService itemService;
+    private final ItemService itemService;
 
-    private CheckConsistencyService checker;
+    private final CheckConsistencyService checker;
 
     @Autowired
     public ItemController(ItemService itemService, CheckConsistencyService checkConsistencyService) {
@@ -34,11 +34,8 @@ public class ItemController {
     @PostMapping
     public ItemDto create(@Valid @RequestBody ItemDto itemDto, @RequestHeader(OWNER) Long ownerId) {
         log.info("Получен POST-запрос к эндпоинту: '/items' на добавление вещи владельцем с ID={}", ownerId);
-        ItemDto newItemDto = null;
-        if (checker.isExistUser(ownerId)) {
-            newItemDto = itemService.create(itemDto, ownerId);
-        }
-        return newItemDto;
+        checker.isExistUser(ownerId);
+        return itemService.create(itemDto, ownerId);
     }
 
     @GetMapping
@@ -52,11 +49,8 @@ public class ItemController {
     public ItemDto update(@RequestBody ItemDto itemDto, @PathVariable Long itemId,
                           @RequestHeader(OWNER) Long ownerId) {
         log.info("Получен PATCH-запрос к эндпоинту: '/items' на обновление вещи с ID={}", itemId);
-        ItemDto newItemDto = null;
-        if (checker.isExistUser(ownerId)) {
-            newItemDto = itemService.update(itemDto, ownerId, itemId);
-        }
-        return newItemDto;
+        checker.isExistUser(ownerId);
+        return itemService.update(itemDto, ownerId, itemId);
     }
 
     @DeleteMapping("/{itemId}")

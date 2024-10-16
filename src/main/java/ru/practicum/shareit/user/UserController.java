@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.service.CheckConsistencyService;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -13,13 +14,13 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
-    private UserService userService;
-    private CheckConsistencyService checker;
+    private final UserService userService;
+    private final ItemService itemService;
 
     @Autowired
-    public UserController(UserService userService, CheckConsistencyService checkConsistencyService) {
+    public UserController(UserService userService, CheckConsistencyService checkConsistencyService, ItemService itemService) {
         this.userService = userService;
-        this.checker = checkConsistencyService;
+        this.itemService = itemService;
     }
 
     @GetMapping
@@ -50,7 +51,7 @@ public class UserController {
     public UserDto delete(@PathVariable Long userId) {
         log.info("Получен DELETE-запрос к эндпоинту: '/users' на удаление пользователя с ID={}", userId);
         UserDto userDto = userService.delete(userId);
-        checker.deleteItemsByUser(userId);
+        itemService.deleteItemsByOwner(userId);
         return userDto;
     }
 }

@@ -11,38 +11,35 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public class UserService {
-    private UserStorage userStorage;
-    private UserMapper mapper;
+    private final UserStorage userStorage;
 
     @Autowired
-    public UserService(@Qualifier("InMemoryUserStorage") UserStorage userStorage, UserMapper userMapper) {
+    public UserService(@Qualifier("InMemoryUserStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
-        this.mapper = userMapper;
     }
 
     public List<UserDto> getUsers() {
         return userStorage.getUsers().stream()
-                .map(mapper::toUserDto)
+                .map(UserMapper::toUserDto)
                 .collect(toList());
     }
 
-
     public UserDto getUserById(Long id) {
-        return mapper.toUserDto(userStorage.getUserById(id));
+        return UserMapper.toUserDto(userStorage.getUserById(id));
     }
 
     public UserDto create(UserDto userDto) {
-        return mapper.toUserDto(userStorage.create(mapper.toUser(userDto)));
+        return UserMapper.toUserDto(userStorage.create(UserMapper.toUser(userDto)));
     }
 
     public UserDto update(UserDto userDto, Long id) {
         if (userDto.getId() == null) {
             userDto.setId(id);
         }
-        return mapper.toUserDto(userStorage.update(mapper.toUser(userDto)));
+        return UserMapper.toUserDto(userStorage.update(UserMapper.toUser(userDto)));
     }
 
     public UserDto delete(Long userId) {
-        return mapper.toUserDto(userStorage.delete(userId));
+        return UserMapper.toUserDto(userStorage.delete(userId));
     }
 }

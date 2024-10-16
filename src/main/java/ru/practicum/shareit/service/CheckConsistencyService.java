@@ -2,29 +2,22 @@ package ru.practicum.shareit.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.user.UserService;
 
 @Service
 public class CheckConsistencyService {
-    private UserService userService;
-    private ItemService itemService;
+    private final UserService userService;
 
     @Autowired
     public CheckConsistencyService(UserService userService, ItemService itemService) {
         this.userService = userService;
-        this.itemService = itemService;
     }
 
-    public boolean isExistUser(Long userId) {
-        boolean exist = false;
-        if (userService.getUserById(userId) != null) {
-            exist = true;
+    public void isExistUser(Long userId) {
+        if (userService.getUserById(userId) == null) {
+            throw new UserNotFoundException("Пользователь с ID " + userId + " не найден.");
         }
-        return exist;
-    }
-
-    public void deleteItemsByUser(Long userId) {
-        itemService.deleteItemsByOwner(userId);
     }
 }

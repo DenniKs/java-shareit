@@ -8,19 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import static java.util.stream.Collectors.toList;
 
 @Component("InMemoryItemStorage")
 public class InMemoryItemStorage implements ItemStorage {
 
-    public Map<Long, Item> items;
-    private Long currentId;
-
-    public InMemoryItemStorage() {
-        currentId = 0L;
-        items = new HashMap<>();
-    }
+    private final Map<Long, Item> items = new HashMap<>();
+    private Long currentId = 0L;
 
     @Override
     public Item create(Item item) {
@@ -39,15 +33,18 @@ public class InMemoryItemStorage implements ItemStorage {
         if (!items.containsKey(item.getId())) {
             throw new ItemNotFoundException("Вещь с ID=" + item.getId() + " не найдена!");
         }
+
+        Item existingItem = items.get(item.getId());
         if (item.getName() == null) {
-            item.setName(items.get(item.getId()).getName());
+            item.setName(existingItem.getName());
         }
         if (item.getDescription() == null) {
-            item.setDescription(items.get(item.getId()).getDescription());
+            item.setDescription(existingItem.getDescription());
         }
         if (item.getAvailable() == null) {
-            item.setAvailable(items.get(item.getId()).getAvailable());
+            item.setAvailable(existingItem.getAvailable());
         }
+
         if (isValidItem(item)) {
             items.put(item.getId(), item);
         }
@@ -60,24 +57,24 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new ValidationException("Передан пустой аргумент!");
         }
         if (!items.containsKey(itemId)) {
-            throw new ItemNotFoundException("Вещь с ID=" + itemId + " не найден!");
+            throw new ItemNotFoundException("Вещь с ID=" + itemId + " не найдена!");
         }
         return items.remove(itemId);
     }
 
     @Override
     public List<Item> getItemsByOwner(Long ownerId) {
-        return new ArrayList<>(items.values().stream()
+        return items.values().stream()
                 .filter(item -> item.getOwnerId().equals(ownerId))
-                .collect(toList()));
+                .collect(toList());
     }
 
     @Override
     public void deleteItemsByOwner(Long ownerId) {
-        List<Long> deleteIds = new ArrayList<>(items.values().stream()
+        List<Long> deleteIds = items.values().stream()
                 .filter(item -> item.getOwnerId().equals(ownerId))
-                .map(item -> item.getId())
-                .collect(toList()));
+                .map(Item::getId)
+                .collect(toList());
         for (Long deleteId : deleteIds) {
             items.remove(deleteId);
         }
@@ -93,19 +90,21 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public List<Item> getItemsBySearchQuery(String text) {
-        List<Item> searchItems = new ArrayList<>();
-        if (!text.isBlank()) {
-            searchItems = items.values().stream()
-                    .filter(item -> item.getAvailable())
-                    .filter(item -> item.getName().toLowerCase().contains(text) ||
-                            item.getDescription().toLowerCase().contains(text))
-                    .collect(toList());
+        if (text.isBlank()) {
+            return new ArrayList<>();
         }
-        return searchItems;
+
+        return items.values().stream()
+                .filter(Item::getAvailable)
+                .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()) ||
+                        item.getDescription().toLowerCase().contains(text.toLowerCase()))
+                .collect(toList());
     }
 
     private boolean isValidItem(Item item) {
-        if ((item.getName().isEmpty()) || (item.getDescription().isEmpty()) || (item.getAvailable() == null)) {
+        if (item.getName() == null || item.getName().isEmpty() ||
+                item.getDescription() == null || item.getDescription().isEmpty() ||
+                item.getAvailable() == null) {
             throw new ValidationException("У вещи некорректные данные");
         }
         return true;

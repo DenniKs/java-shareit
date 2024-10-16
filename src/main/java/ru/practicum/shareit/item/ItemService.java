@@ -12,27 +12,25 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public class ItemService {
-    private ItemStorage itemStorage;
-    private ItemMapper mapper;
+    private final ItemStorage itemStorage;
 
     @Autowired
-    public ItemService(@Qualifier("InMemoryItemStorage") ItemStorage itemStorage, ItemMapper itemMapper) {
+    public ItemService(@Qualifier("InMemoryItemStorage") ItemStorage itemStorage) {
         this.itemStorage = itemStorage;
-        this.mapper = itemMapper;
     }
 
     public ItemDto create(ItemDto itemDto, Long ownerId) {
-        return mapper.toItemDto(itemStorage.create(mapper.toItem(itemDto, ownerId)));
+        return ItemMapper.toItemDto(itemStorage.create(ItemMapper.toItem(itemDto, ownerId)));
     }
 
-    public List<ItemDto> getItemsByOwner(Long ownderId) {
-        return itemStorage.getItemsByOwner(ownderId).stream()
-                .map(mapper::toItemDto)
+    public List<ItemDto> getItemsByOwner(Long ownerId) {
+        return itemStorage.getItemsByOwner(ownerId).stream()
+                .map(ItemMapper::toItemDto)
                 .collect(toList());
     }
 
     public ItemDto getItemById(Long id) {
-        return mapper.toItemDto(itemStorage.getItemById(id));
+        return ItemMapper.toItemDto(itemStorage.getItemById(id));
     }
 
     public ItemDto update(ItemDto itemDto, Long ownerId, Long itemId) {
@@ -43,7 +41,7 @@ public class ItemService {
         if (!oldItem.getOwnerId().equals(ownerId)) {
             throw new ItemNotFoundException("У пользователя нет такой вещи!");
         }
-        return mapper.toItemDto(itemStorage.update(mapper.toItem(itemDto, ownerId)));
+        return ItemMapper.toItemDto(itemStorage.update(ItemMapper.toItem(itemDto, ownerId)));
     }
 
     public ItemDto delete(Long itemId, Long ownerId) {
@@ -51,17 +49,17 @@ public class ItemService {
         if (!item.getOwnerId().equals(ownerId)) {
             throw new ItemNotFoundException("У пользователя нет такой вещи!");
         }
-        return mapper.toItemDto(itemStorage.delete(itemId));
+        return ItemMapper.toItemDto(itemStorage.delete(itemId));
     }
 
-    public void deleteItemsByOwner(Long ownderId) {
-        itemStorage.deleteItemsByOwner(ownderId);
+    public void deleteItemsByOwner(Long ownerId) {
+        itemStorage.deleteItemsByOwner(ownerId);
     }
 
     public List<ItemDto> getItemsBySearchQuery(String text) {
         text = text.toLowerCase();
         return itemStorage.getItemsBySearchQuery(text).stream()
-                .map(mapper::toItemDto)
+                .map(ItemMapper::toItemDto)
                 .collect(toList());
     }
 }

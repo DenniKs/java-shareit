@@ -1,9 +1,9 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-@Component
+@UtilityClass
 public class ItemMapper {
 
     public ItemDto toItemDto(Item item) {

@@ -13,13 +13,8 @@ import java.util.Map;
 @Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
-    public Map<Long, User> users;
-    private Long currentId;
-
-    public InMemoryUserStorage() {
-        currentId = 0L;
-        users = new HashMap<>();
-    }
+    private final Map<Long, User> users = new HashMap<>();
+    private Long currentId = 0L;
 
     @Override
     public List<User> getUsers() {
@@ -28,16 +23,15 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        if (users.values().stream().noneMatch(u -> u.getEmail().equals(user.getEmail()))) {
-            if (isValidUser(user)) {
-                //     user.setId(++currentId);
-                if (user.getId() == null) {
-                    user.setId(++currentId);
-                }
-                users.put(user.getId(), user);
-            }
-        } else {
+        if (users.values().stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
             throw new UserAlreadyExistsException("Пользователь с E-mail=" + user.getEmail() + " уже существует!");
+        }
+
+        if (isValidUser(user)) {
+            if (user.getId() == null) {
+                user.setId(++currentId);
+            }
+            users.put(user.getId(), user);
         }
         return user;
     }
@@ -50,21 +44,26 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(user.getId())) {
             throw new UserNotFoundException("Пользователь с ID=" + user.getId() + " не найден!");
         }
+
+        User existingUser = users.get(user.getId());
+
         if (user.getName() == null) {
-            user.setName(users.get(user.getId()).getName());
+            user.setName(existingUser.getName());
         }
         if (user.getEmail() == null) {
-            user.setEmail(users.get(user.getId()).getEmail());
+            user.setEmail(existingUser.getEmail());
         }
+
         if (users.values().stream()
                 .filter(u -> u.getEmail().equals(user.getEmail()))
-                .allMatch(u -> u.getId().equals(user.getId()))) {
-            if (isValidUser(user)) {
-                users.put(user.getId(), user);
-            }
-        } else {
+                .anyMatch(u -> !u.getId().equals(user.getId()))) {
             throw new UserAlreadyExistsException("Пользователь с E-mail=" + user.getEmail() + " уже существует!");
         }
+
+        if (isValidUser(user)) {
+            users.put(user.getId(), user);
+        }
+
         return user;
     }
 
@@ -91,7 +90,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (!user.getEmail().contains("@")) {
             throw new ValidationException("Некорректный e-mail пользователя: " + user.getEmail());
         }
-        if ((user.getName().isEmpty())) {
+        if (user.getName().isEmpty()) {
             throw new ValidationException("Некорректный логин пользователя: " + user.getName());
         }
         return true;
