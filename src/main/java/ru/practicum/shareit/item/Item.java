@@ -1,17 +1,17 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.item;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class User {
+public class Item {
     private Long id;
     @NotBlank
     private String name;
-    @Email
-    @NotBlank
-    private String email;
+    private String description;
+    private Boolean available;
+    private Long ownerId;
+    private Long requestId;
 }
