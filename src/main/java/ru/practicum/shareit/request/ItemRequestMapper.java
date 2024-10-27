@@ -9,7 +9,7 @@ public class ItemRequestMapper {
     public ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
         return new ItemRequestDto(
                 itemRequest.getDescription(),
-                itemRequest.getRequestorName(),
+                itemRequest.getRequestorId().toString(),
                 itemRequest.getCreated()
         );
     }
