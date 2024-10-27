@@ -6,20 +6,24 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.ItemServiceImpl;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserServiceImpl;
 
 @Component
 public class BookingMapper {
-
-    private UserService userService;
-    private ItemService itemService;
+    private final UserServiceImpl userService;
+    private final ItemServiceImpl itemService;
+    private final UserMapper userMapper;
+    private final ItemMapper itemMapper;
 
     @Autowired
-    public BookingMapper(UserService userService, ItemService itemService) {
+    public BookingMapper(UserServiceImpl userService, ItemServiceImpl itemService,
+                         UserMapper userMapper, ItemMapper itemMapper) {
         this.userService = userService;
         this.itemService = itemService;
+        this.userMapper = userMapper;
+        this.itemMapper = itemMapper;
     }
 
     public BookingDto toBookingDto(Booking booking) {
@@ -28,8 +32,8 @@ public class BookingMapper {
                     booking.getId(),
                     booking.getStart(),
                     booking.getEnd(),
-                    ItemMapper.toItemDto(booking.getItem()),
-                    UserMapper.toUserDto(booking.getBooker()),
+                    itemMapper.toItemDto(booking.getItem()),
+                    userMapper.toUserDto(booking.getBooker()),
                     booking.getStatus()
             );
         } else {

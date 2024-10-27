@@ -16,29 +16,31 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserServiceImpl(UserRepository repository) {
+    public UserServiceImpl(UserRepository repository, UserMapper userMapper) {
         this.repository = repository;
+        this.userMapper = userMapper;
     }
 
     @Override
     public List<UserDto> getUsers() {
         return repository.findAll().stream()
-                .map(UserMapper::toUserDto)
+                .map(userMapper::toUserDto)
                 .collect(toList());
     }
 
     @Override
     public UserDto getUserById(Long id) {
         Optional<User> user = repository.findById(id);
-        return user.map(UserMapper::toUserDto).orElse(null);
+        return user.map(userMapper::toUserDto).orElse(null);
     }
 
     @Override
     public UserDto create(UserDto userDto) {
         try {
-            return UserMapper.toUserDto(repository.save(UserMapper.toUser(userDto)));
+            return userMapper.toUserDto(repository.save(userMapper.toUser(userDto)));
         } catch (DataIntegrityViolationException e) {
             throw new UserAlreadyExistsException("Пользователь с E-mail=" +
                     userDto.getEmail() + " уже существует!");
@@ -66,7 +68,7 @@ public class UserServiceImpl implements UserService {
             }
 
         }
-        return UserMapper.toUserDto(repository.save(user));
+        return userMapper.toUserDto(repository.save(user));
     }
 
     @Override

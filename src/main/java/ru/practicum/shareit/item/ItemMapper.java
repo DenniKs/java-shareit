@@ -1,13 +1,22 @@
 package ru.practicum.shareit.item;
 
-import lombok.experimental.UtilityClass;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.service.ServiceProvider;
+import ru.practicum.shareit.service.CheckConsistencyService;
 
-@UtilityClass
+@Component
 public class ItemMapper {
-    private final ServiceProvider serviceProvider = new ServiceProvider(); // создание экземпляра
+
+    private final CheckConsistencyService checker;
+
+    @Autowired
+    @Lazy
+    public ItemMapper(CheckConsistencyService checkConsistencyService) {
+        this.checker = checkConsistencyService;
+    }
 
     public ItemDto toItemDto(Item item) {
         return new ItemDto(
@@ -19,7 +28,7 @@ public class ItemMapper {
                 item.getRequestId() != null ? item.getRequestId() : null,
                 null,
                 null,
-                serviceProvider.getChecker().getCommentsByItemId(item.getId())); // использование экземпляра
+                checker.getCommentsByItemId(item.getId()));
     }
 
     public ItemDto toItemExtDto(Item item) {
@@ -30,9 +39,9 @@ public class ItemMapper {
                 item.getAvailable(),
                 item.getOwner(),
                 item.getRequestId() != null ? item.getRequestId() : null,
-                serviceProvider.getChecker().getLastBooking(item.getId()),
-                serviceProvider.getChecker().getNextBooking(item.getId()),
-                serviceProvider.getChecker().getCommentsByItemId(item.getId()));
+                checker.getLastBooking(item.getId()),
+                checker.getNextBooking(item.getId()),
+                checker.getCommentsByItemId(item.getId()));
     }
 
     public Item toItem(ItemDto itemDto, Long ownerId) {
@@ -41,7 +50,7 @@ public class ItemMapper {
                 itemDto.getName(),
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
-                serviceProvider.getChecker().findUserById(ownerId),
+                checker.findUserById(ownerId),
                 itemDto.getRequestId() != null ? itemDto.getRequestId() : null
         );
     }

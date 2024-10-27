@@ -27,15 +27,17 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final CheckConsistencyService checker;
     private final UserService userService;
+    private final ItemMapper itemMapper;
 
     @Autowired
     @Lazy
     public ItemServiceImpl(ItemRepository repository, CommentRepository commentRepository,
-                           CheckConsistencyService checkConsistencyService, UserService userService) {
+                           CheckConsistencyService checkConsistencyService, UserService userService, ItemMapper itemMapper) {
         this.repository = repository;
         this.commentRepository = commentRepository;
         this.checker = checkConsistencyService;
         this.userService = userService;
+        this.itemMapper = itemMapper;
     }
 
     @Override
@@ -44,9 +46,9 @@ public class ItemServiceImpl implements ItemService {
         Item item = repository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException("Вещь с ID=" + id + " не найдена!"));
         if (userId.equals(item.getOwner().getId())) {
-            itemDto = ItemMapper.toItemExtDto(item);
+            itemDto = itemMapper.toItemExtDto(item);
         } else {
-            itemDto = ItemMapper.toItemDto(item);
+            itemDto = itemMapper.toItemDto(item);
         }
         return itemDto;
     }
@@ -63,14 +65,14 @@ public class ItemServiceImpl implements ItemService {
         if (userService.getUserById(ownerId) == null) {
             throw new UserNotFoundException("Пользователь с ID " + ownerId + " не найден!");
         }
-        return ItemMapper.toItemDto(repository.save(ItemMapper.toItem(itemDto, ownerId)));
+        return itemMapper.toItemDto(repository.save(itemMapper.toItem(itemDto, ownerId)));
     }
 
     @Override
     public List<ItemDto> getItemsByOwner(Long ownerId) {
         checker.isExistUser(ownerId);
         return repository.findByOwnerId(ownerId).stream()
-                .map(ItemMapper::toItemExtDto)
+                .map(itemMapper::toItemExtDto)
                 .sorted(Comparator.comparing(ItemDto::getId))
                 .collect(toList());
     }
@@ -93,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getItemsBySearchQuery(String text) {
         if ((text != null) && (!text.isEmpty()) && (!text.isBlank())) {
            return repository.getItemsBySearchQuery(text).stream()
-                    .map(ItemMapper::toItemDto)
+                    .map(itemMapper::toItemDto)
                     .collect(toList());
         } else return new ArrayList<>();
     }
@@ -115,7 +117,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-        return ItemMapper.toItemDto(repository.save(item));
+        return itemMapper.toItemDto(repository.save(item));
     }
 
     @Override
@@ -131,14 +133,14 @@ public class ItemServiceImpl implements ItemService {
         } else {
             throw new ValidationException("Данный пользователь вещь не бронировал!");
         }
-        return ItemMapper.toCommentDto(commentRepository.save(comment));
+        return itemMapper.toCommentDto(commentRepository.save(comment));
     }
 
     @Override
     public List<CommentDto> getCommentsByItemId(Long itemId) {
         return commentRepository.findAllByItem_Id(itemId,
                         Sort.by(Sort.Direction.DESC, "created")).stream()
-                .map(ItemMapper::toCommentDto)
+                .map(itemMapper::toCommentDto)
                 .collect(toList());
     }
 }
