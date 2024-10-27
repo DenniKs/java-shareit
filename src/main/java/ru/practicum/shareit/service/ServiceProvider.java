@@ -6,11 +6,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServiceProvider {
 
-    private final CheckConsistencyService checkConsistencyService;
+    private CheckConsistencyService checkConsistencyService;
 
     @Autowired
-    public ServiceProvider(CheckConsistencyService checkConsistencyService) {
-        this.checkConsistencyService = checkConsistencyService;
+    public ServiceProvider() {
     }
 
     public CheckConsistencyService getChecker() {

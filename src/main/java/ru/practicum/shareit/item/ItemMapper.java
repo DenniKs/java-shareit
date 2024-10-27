@@ -7,6 +7,7 @@ import ru.practicum.shareit.service.ServiceProvider;
 
 @UtilityClass
 public class ItemMapper {
+    private final ServiceProvider serviceProvider = new ServiceProvider(); // создание экземпляра
 
     public ItemDto toItemDto(Item item) {
         return new ItemDto(
@@ -18,7 +19,7 @@ public class ItemMapper {
                 item.getRequestId() != null ? item.getRequestId() : null,
                 null,
                 null,
-                ServiceProvider.getChecker().getCommentsByItemId(item.getId()));
+                serviceProvider.getChecker().getCommentsByItemId(item.getId())); // использование экземпляра
     }
 
     public ItemDto toItemExtDto(Item item) {
@@ -29,9 +30,9 @@ public class ItemMapper {
                 item.getAvailable(),
                 item.getOwner(),
                 item.getRequestId() != null ? item.getRequestId() : null,
-                ServiceProvider.getChecker().getLastBooking(item.getId()),
-                ServiceProvider.getChecker().getNextBooking(item.getId()),
-                ServiceProvider.getChecker().getCommentsByItemId(item.getId()));
+                serviceProvider.getChecker().getLastBooking(item.getId()),
+                serviceProvider.getChecker().getNextBooking(item.getId()),
+                serviceProvider.getChecker().getCommentsByItemId(item.getId()));
     }
 
     public Item toItem(ItemDto itemDto, Long ownerId) {
@@ -40,7 +41,7 @@ public class ItemMapper {
                 itemDto.getName(),
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
-                ServiceProvider.getChecker().findUserById(ownerId),
+                serviceProvider.getChecker().findUserById(ownerId),
                 itemDto.getRequestId() != null ? itemDto.getRequestId() : null
         );
     }
