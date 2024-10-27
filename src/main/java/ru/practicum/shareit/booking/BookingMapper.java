@@ -13,8 +13,8 @@ import ru.practicum.shareit.user.UserService;
 @Component
 public class BookingMapper {
 
-    private static UserService userService;
-    private static ItemService itemService;
+    private UserService userService;
+    private ItemService itemService;
 
     @Autowired
     public BookingMapper(UserService userService, ItemService itemService) {
@@ -22,7 +22,7 @@ public class BookingMapper {
         this.itemService = itemService;
     }
 
-    public static BookingDto toBookingDto(Booking booking) {
+    public BookingDto toBookingDto(Booking booking) {
         if (booking != null) {
             return new BookingDto(
                     booking.getId(),
@@ -37,7 +37,7 @@ public class BookingMapper {
         }
     }
 
-    public static BookingShortDto toBookingShortDto(Booking booking) {
+    public BookingShortDto toBookingShortDto(Booking booking) {
         if (booking != null) {
             return new BookingShortDto(
                     booking.getId(),
@@ -50,7 +50,7 @@ public class BookingMapper {
         }
     }
 
-    public static Booking toBooking(BookingInputDto bookingInputDto, Long bookerId) {
+    public Booking toBooking(BookingInputDto bookingInputDto, Long bookerId) {
         return new Booking(
                 null,
                 bookingInputDto.getStart(),

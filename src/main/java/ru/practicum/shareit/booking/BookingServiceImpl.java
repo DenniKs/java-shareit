@@ -24,13 +24,15 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository repository;
     private final CheckConsistencyService checker;
+    private final BookingMapper bookingMapper;
 
     @Autowired
     @Lazy
     public BookingServiceImpl(BookingRepository bookingRepository,
-                              CheckConsistencyService checkConsistencyService) {
+                              CheckConsistencyService checkConsistencyService, BookingMapper bookingMapper) {
         this.repository = bookingRepository;
         this.checker = checkConsistencyService;
+        this.bookingMapper = bookingMapper;
     }
 
     @Override
@@ -42,12 +44,12 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Вещь с ID=" + bookingInputDto.getItemId() +
                     " недоступна для бронирования!");
         }
-        Booking booking = BookingMapper.toBooking(bookingInputDto, bookerId);
+        Booking booking = bookingMapper.toBooking(bookingInputDto, bookerId);
         if (bookerId.equals(booking.getItem().getOwner().getId())) {
             throw new BookingNotFoundException("Вещь с ID=" + bookingInputDto.getItemId() +
                     " недоступна для бронирования самим владельцем!");
         }
-        return BookingMapper.toBookingDto(repository.save(booking));
+        return bookingMapper.toBookingDto(repository.save(booking));
     }
 
     @Override
@@ -86,7 +88,7 @@ public class BookingServiceImpl implements BookingService {
             }
         }
 
-        return BookingMapper.toBookingDto(repository.save(booking));
+        return bookingMapper.toBookingDto(repository.save(booking));
     }
 
     @Override
@@ -95,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = repository.findById(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException("Бронирование с ID=" + bookingId + " не найдено!"));
         if (booking.getBooker().getId().equals(userId) || checker.isItemOwner(booking.getItem().getId(), userId)) {
-            return BookingMapper.toBookingDto(booking);
+            return bookingMapper.toBookingDto(booking);
         } else {
             throw new UserNotFoundException("Посмотреть данные бронирования может только владелец вещи" +
                     " или бронирующий ее!");
@@ -131,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
                 throw new ValidationException("Unknown state: " + state);
         }
         return bookings.stream()
-                .map(BookingMapper::toBookingDto)
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
@@ -165,19 +167,19 @@ public class BookingServiceImpl implements BookingService {
                 throw new ValidationException("Unknown state: " + state);
         }
         return bookings.stream()
-                .map(BookingMapper::toBookingDto)
+                .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public BookingShortDto getLastBooking(Long itemId) {
-        return BookingMapper.toBookingShortDto(repository.findFirstByItem_IdAndEndBeforeOrderByEndDesc(itemId,
+        return bookingMapper.toBookingShortDto(repository.findFirstByItem_IdAndEndBeforeOrderByEndDesc(itemId,
                 LocalDateTime.now()));
     }
 
     @Override
     public BookingShortDto getNextBooking(Long itemId) {
-        return BookingMapper.toBookingShortDto(repository.findFirstByItem_IdAndStartAfterOrderByStartAsc(itemId,
+        return bookingMapper.toBookingShortDto(repository.findFirstByItem_IdAndStartAfterOrderByStartAsc(itemId,
                 LocalDateTime.now()));
     }
 
