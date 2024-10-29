@@ -1,44 +1,33 @@
 package ru.practicum.shareit.booking;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInputDto;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.ItemServiceImpl;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.UserServiceImpl;
 
-@Component
+import java.util.List;
+
+@UtilityClass
 public class BookingMapper {
-    private final UserServiceImpl userService;
-    private final ItemServiceImpl itemService;
-    private final UserMapper userMapper;
-    private final ItemMapper itemMapper;
 
-    @Autowired
-    public BookingMapper(UserServiceImpl userService, ItemServiceImpl itemService,
-                         UserMapper userMapper, ItemMapper itemMapper) {
-        this.userService = userService;
-        this.itemService = itemService;
-        this.userMapper = userMapper;
-        this.itemMapper = itemMapper;
-    }
-
-    public BookingDto toBookingDto(Booking booking) {
+    public BookingDto toBookingDto(Booking booking, List<CommentDto> comments) {
         if (booking != null) {
             return new BookingDto(
                     booking.getId(),
                     booking.getStart(),
                     booking.getEnd(),
-                    itemMapper.toItemDto(booking.getItem()),
-                    userMapper.toUserDto(booking.getBooker()),
+                    ItemMapper.toItemDto(booking.getItem(), comments),
+                    UserMapper.toUserDto(booking.getBooker()),
                     booking.getStatus()
             );
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     public BookingShortDto toBookingShortDto(Booking booking) {
@@ -49,18 +38,18 @@ public class BookingMapper {
                     booking.getStart(),
                     booking.getEnd()
             );
-        } else {
-            return null;
         }
+
+        return null;
     }
 
-    public Booking toBooking(BookingInputDto bookingInputDto, Long bookerId) {
+    public Booking toBooking(BookingInputDto bookingInputDto, User booker, Item item) {
         return new Booking(
                 null,
                 bookingInputDto.getStart(),
                 bookingInputDto.getEnd(),
-                itemService.findItemById(bookingInputDto.getItemId()),
-                userService.findUserById(bookerId),
+                item,
+                booker,
                 Status.WAITING
         );
     }

@@ -1,24 +1,17 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.service.CheckConsistencyService;
+import ru.practicum.shareit.user.User;
 
-@Component
+import java.util.List;
+
+@UtilityClass
 public class ItemMapper {
 
-    private final CheckConsistencyService checker;
-
-    @Autowired
-    @Lazy
-    public ItemMapper(CheckConsistencyService checkConsistencyService) {
-        this.checker = checkConsistencyService;
-    }
-
-    public ItemDto toItemDto(Item item) {
+    public ItemDto toItemDto(Item item, List<CommentDto> comments) {
         return new ItemDto(
                 item.getId(),
                 item.getName(),
@@ -28,10 +21,10 @@ public class ItemMapper {
                 item.getRequestId() != null ? item.getRequestId() : null,
                 null,
                 null,
-                checker.getCommentsByItemId(item.getId()));
+                comments);
     }
 
-    public ItemDto toItemExtDto(Item item) {
+    public ItemDto toItemExtDto(Item item, BookingShortDto lastBooking, BookingShortDto nextBooking, List<CommentDto> comments) {
         return new ItemDto(
                 item.getId(),
                 item.getName(),
@@ -39,18 +32,18 @@ public class ItemMapper {
                 item.getAvailable(),
                 item.getOwner(),
                 item.getRequestId() != null ? item.getRequestId() : null,
-                checker.getLastBooking(item.getId()),
-                checker.getNextBooking(item.getId()),
-                checker.getCommentsByItemId(item.getId()));
+                lastBooking,
+                nextBooking,
+                comments);
     }
 
-    public Item toItem(ItemDto itemDto, Long ownerId) {
+    public Item toItem(ItemDto itemDto, User owner) {
         return new Item(
                 itemDto.getId(),
                 itemDto.getName(),
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
-                checker.findUserById(ownerId),
+                owner,
                 itemDto.getRequestId() != null ? itemDto.getRequestId() : null
         );
     }

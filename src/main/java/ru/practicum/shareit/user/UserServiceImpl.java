@@ -16,31 +16,29 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
-    private final UserMapper userMapper;
 
     @Autowired
-    public UserServiceImpl(UserRepository repository, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository repository) {
         this.repository = repository;
-        this.userMapper = userMapper;
     }
 
     @Override
     public List<UserDto> getUsers() {
         return repository.findAll().stream()
-                .map(userMapper::toUserDto)
+                .map(UserMapper::toUserDto)
                 .collect(toList());
     }
 
     @Override
     public UserDto getUserById(Long id) {
         Optional<User> user = repository.findById(id);
-        return user.map(userMapper::toUserDto).orElse(null);
+        return user.map(UserMapper::toUserDto).orElse(null);
     }
 
     @Override
     public UserDto create(UserDto userDto) {
         try {
-            return userMapper.toUserDto(repository.save(userMapper.toUser(userDto)));
+            return UserMapper.toUserDto(repository.save(UserMapper.toUser(userDto)));
         } catch (DataIntegrityViolationException e) {
             throw new UserAlreadyExistsException("Пользователь с E-mail=" +
                     userDto.getEmail() + " уже существует!");
@@ -58,17 +56,16 @@ public class UserServiceImpl implements UserService {
             user.setName(userDto.getName());
         }
         if ((userDto.getEmail() != null) && (!userDto.getEmail().equals(user.getEmail()))) {
-            if (repository.findByEmail(userDto.getEmail())
+            if (!repository.findByEmail(userDto.getEmail())
                     .stream()
                     .filter(u -> u.getEmail().equals(userDto.getEmail()))
                     .allMatch(u -> u.getId().equals(userDto.getId()))) {
-                user.setEmail(userDto.getEmail());
-            } else {
+
                 throw new UserAlreadyExistsException("Пользователь с E-mail=" + user.getEmail() + " уже существует!");
             }
-
+            user.setEmail(userDto.getEmail());
         }
-        return userMapper.toUserDto(repository.save(user));
+        return UserMapper.toUserDto(repository.save(user));
     }
 
     @Override
