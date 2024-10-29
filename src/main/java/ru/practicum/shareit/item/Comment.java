@@ -21,6 +21,7 @@ public class Comment {
     private Long id;
     @NotBlank
     @NotEmpty
+    @Column(name = "text_comment")
     private String text;
     @ManyToOne()
     @JoinColumn(name = "item_id", referencedColumnName = "id")
