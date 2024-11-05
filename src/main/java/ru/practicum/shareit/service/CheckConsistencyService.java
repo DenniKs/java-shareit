@@ -4,11 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.UserForbiddenException;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.ItemServiceImpl;
 
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.UserServiceImpl;
-
 
 @Service
 public class CheckConsistencyService {
@@ -16,7 +13,7 @@ public class CheckConsistencyService {
     private final ItemService itemService;
 
     @Autowired
-    public CheckConsistencyService(UserServiceImpl userService, ItemServiceImpl itemService) {
+    public CheckConsistencyService(UserService userService, ItemService itemService) {
         this.userService = userService;
         this.itemService = itemService;
     }
@@ -33,7 +30,7 @@ public class CheckConsistencyService {
 
     public boolean isItemOwner(Long itemId, Long userId) {
 
-        return itemService.getItemsByOwner(userId).stream()
+        return itemService.getItemsByOwner(userId, 0, null).stream()
                 .anyMatch(i -> i.getId().equals(itemId));
     }
 }
