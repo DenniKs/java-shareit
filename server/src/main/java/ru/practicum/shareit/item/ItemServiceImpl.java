@@ -23,6 +23,7 @@ import ru.practicum.shareit.util.Pagination;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -97,7 +98,7 @@ public class ItemServiceImpl implements ItemService {
                     BookingShortDto nextBooking = bookingService.getNextBooking(item.getId());
                     List<CommentDto> comments = itemService.getCommentsByItemId(item.getId());
                     return ItemMapper.toItemExtDto(item, lastBooking, nextBooking, comments);
-                }).toList());
+                }).collect(Collectors.toList()));
                 pageable = pageable.next();
             } while (page.hasNext());
 
@@ -111,7 +112,7 @@ public class ItemServiceImpl implements ItemService {
                     BookingShortDto nextBooking = bookingService.getNextBooking(item.getId());
                     List<CommentDto> comments = itemService.getCommentsByItemId(item.getId());
                     return ItemMapper.toItemExtDto(item, lastBooking, nextBooking, comments);
-                }).toList());
+                }).collect(Collectors.toList()));
                 if (!page.hasNext()) {
                     break;
                 }
@@ -149,7 +150,7 @@ public class ItemServiceImpl implements ItemService {
                     listItemDto.addAll(page.stream().map(item -> {
                         List<CommentDto> comments = itemService.getCommentsByItemId(item.getId());
                         return ItemMapper.toItemDto(item, comments);
-                    }).toList());
+                    }).collect(Collectors.toList()));
                     pageable = pageable.next();
                 } while (page.hasNext());
 
@@ -161,7 +162,7 @@ public class ItemServiceImpl implements ItemService {
                     listItemDto.addAll(page.stream().map(item -> {
                         List<CommentDto> comments = itemService.getCommentsByItemId(item.getId());
                         return ItemMapper.toItemDto(item, comments);
-                    }).toList());
+                    }).collect(Collectors.toList()));
                     if (!page.hasNext()) {
                         break;
                     }

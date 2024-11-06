@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.User;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Data
 @NoArgsConstructor

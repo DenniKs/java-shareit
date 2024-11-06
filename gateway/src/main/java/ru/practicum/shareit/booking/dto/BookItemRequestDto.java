@@ -2,8 +2,8 @@ package ru.practicum.shareit.booking.dto;
 
 import java.time.LocalDateTime;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.FutureOrPresent;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

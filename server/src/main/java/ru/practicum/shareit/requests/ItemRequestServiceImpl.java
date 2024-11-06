@@ -17,6 +17,7 @@ import ru.practicum.shareit.util.Pagination;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -72,13 +73,13 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         if (size == null) {
             List<ItemRequest> listItemRequest = repository.findAllByRequestorIdNotOrderByCreatedDesc(userId);
             listItemRequestDto
-                    .addAll(listItemRequest.stream().skip(from).map((ItemRequest itemRequest) -> ItemRequestMapper.toItemRequestDto(itemRequest, itemService.getItemsByRequestId(itemRequest.getId()))).toList());
+                    .addAll(listItemRequest.stream().skip(from).map((ItemRequest itemRequest) -> ItemRequestMapper.toItemRequestDto(itemRequest, itemService.getItemsByRequestId(itemRequest.getId()))).collect(Collectors.toList()));
         } else {
             for (int i = pager.getIndex(); i < pager.getTotalPages(); i++) {
                 pageable =
                         PageRequest.of(i, pager.getPageSize(), sort);
                 page = repository.findAllByRequestorIdNot(userId, pageable);
-                listItemRequestDto.addAll(page.stream().map((ItemRequest itemRequest) -> ItemRequestMapper.toItemRequestDto(itemRequest, itemService.getItemsByRequestId(itemRequest.getId()))).toList());
+                listItemRequestDto.addAll(page.stream().map((ItemRequest itemRequest) -> ItemRequestMapper.toItemRequestDto(itemRequest, itemService.getItemsByRequestId(itemRequest.getId()))).collect(Collectors.toList()));
                 if (!page.hasNext()) {
                     break;
                 }

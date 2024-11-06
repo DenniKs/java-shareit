@@ -25,9 +25,9 @@ import ru.practicum.shareit.util.Pagination;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-
 
 @Slf4j
 @Service
@@ -133,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
                 listBookingDto.addAll(page.stream().map(booking -> {
                     List<CommentDto> comments = itemService.getCommentsByItemId(booking.getItem().getId());
                     return BookingMapper.toBookingDto(booking, comments);
-                }).toList());
+                }).collect(Collectors.toList()));
                 pageable = pageable.next();
             } while (page.hasNext());
 
@@ -145,7 +145,7 @@ public class BookingServiceImpl implements BookingService {
                 listBookingDto.addAll(page.stream().map(booking -> {
                     List<CommentDto> comments = itemService.getCommentsByItemId(booking.getItem().getId());
                     return BookingMapper.toBookingDto(booking, comments);
-                }).toList());
+                }).collect(Collectors.toList()));
                 if (!page.hasNext()) {
                     break;
                 }
@@ -200,7 +200,7 @@ public class BookingServiceImpl implements BookingService {
                 listBookingDto.addAll(page.stream().map(booking -> {
                     List<CommentDto> comments = itemService.getCommentsByItemId(booking.getItem().getId());
                     return BookingMapper.toBookingDto(booking, comments);
-                }).toList());
+                }).collect(Collectors.toList()));
                 pageable = pageable.next();
             } while (page.hasNext());
 
@@ -212,7 +212,7 @@ public class BookingServiceImpl implements BookingService {
                 listBookingDto.addAll(page.stream().map(booking -> {
                     List<CommentDto> comments = itemService.getCommentsByItemId(booking.getItem().getId());
                     return BookingMapper.toBookingDto(booking, comments);
-                }).toList());
+                }).collect(Collectors.toList()));
                 if (!page.hasNext()) {
                     break;
                 }
