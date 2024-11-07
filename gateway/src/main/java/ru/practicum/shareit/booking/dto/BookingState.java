@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public enum BookingState {
@@ -11,11 +12,8 @@ public enum BookingState {
     WAITING;
 
     public static Optional<BookingState> from(String stringState) {
-        for (BookingState state : values()) {
-            if (state.name().equalsIgnoreCase(stringState)) {
-                return Optional.of(state);
-            }
-        }
-        return Optional.empty();
+        return Arrays.stream(values())
+                .filter(state -> state.name().equalsIgnoreCase(stringState))
+                .findFirst();
     }
 }

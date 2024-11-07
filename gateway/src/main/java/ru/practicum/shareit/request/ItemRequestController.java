@@ -47,8 +47,7 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public ResponseEntity<Object> getAllItemRequests(@RequestHeader(USER_ID) Long userId,
-                                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
-                                                     Integer from,
+                                                     @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                      @RequestParam(required = false) Integer size) {
         log.info("Получен GET-запрос к эндпоинту: '/requests/all' от пользователя с ID={} на получение всех запросов",
                 userId);
